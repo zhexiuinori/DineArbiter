@@ -1,0 +1,88 @@
+<view class="page-container">
+  <view class="bg-decor">
+    <view class="bubble bubble-1"></view>
+    <view class="bubble bubble-2"></view>
+    <view class="bubble bubble-3"></view>
+  </view>
+
+  <view class="hero-section">
+    <view class="mascot-wrap animate-bounce">
+      <view class="mascot">⚖️</view>
+      <view class="mascot-hat">🎓</view>
+    </view>
+    <view class="title-wrap">
+      <text class="app-title">端水大师</text>
+      <text class="app-subtitle">AI在线判决 吃啥不再吵架</text>
+    </view>
+  </view>
+
+  <!-- 有进行中的局 -->
+  <view class="active-session" wx:if="{{activeSession}}">
+    <view class="active-card" bindtap="onContinueTap">
+      <view class="active-header">
+        <text class="active-badge">进行中</text>
+        <text class="active-time">{{activeSession.time}}</text>
+      </view>
+      <view class="active-body">
+        <text class="active-location">📍 {{activeSession.region}}</text>
+        <text class="active-people">👥 {{activeSession.maxPeople}}人局</text>
+      </view>
+      <view class="active-footer">
+        <text class="active-action">继续端水 ›</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="main-action">
+    <view class="big-btn-wrap">
+      <button class="big-btn animate-bounce" bindtap="onStartTap">
+        <text class="big-btn-emoji">🫗</text>
+        <text class="big-btn-text">我要端水</text>
+      </button>
+      <view class="btn-glow"></view>
+    </view>
+    <text class="action-hint">点击发起一局，召唤群友来表态</text>
+  </view>
+
+  <view class="feature-cards">
+    <view class="feature-card animate-fadeInUp" style="animation-delay: 0.1s">
+      <text class="feature-emoji">🎯</text>
+      <text class="feature-title">发起局</text>
+      <text class="feature-desc">填时间地点，一键召唤</text>
+    </view>
+    <view class="feature-card animate-fadeInUp" style="animation-delay: 0.3s">
+      <text class="feature-emoji">👆</text>
+      <text class="feature-title">表态墙</text>
+      <text class="feature-desc">左滑避雷右滑心动</text>
+    </view>
+    <view class="feature-card animate-fadeInUp" style="animation-delay: 0.5s">
+      <text class="feature-emoji">📜</text>
+      <text class="feature-title">判决书</text>
+      <text class="feature-desc">AI端水公平公正</text>
+    </view>
+  </view>
+
+  <!-- 历史记录 -->
+  <view class="history-section" wx:if="{{historySessions.length > 0}}">
+    <view class="divider">
+      <view class="divider-line"></view>
+      <text class="divider-text">历史记录</text>
+      <view class="divider-line"></view>
+    </view>
+    <view class="history-list">
+      <view class="history-item" wx:for="{{historySessions}}" wx:key="sessionId" bindtap="onHistoryTap" data-session="{{item}}">
+        <view class="history-info">
+          <text class="history-location">📍 {{item.region}} · {{item.time}}</text>
+          <text class="history-status">{{item.status === 'done' ? '已判决' : '进行中'}}</text>
+        </view>
+        <text class="history-arrow">›</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="footer">
+    <text class="footer-text">由AI端水大师提供技术支持 · 公平公正公开</text>
+  </view>
+
+  <canvas type="2d" id="shareCanvas" class="share-canvas"></canvas>
+</view>

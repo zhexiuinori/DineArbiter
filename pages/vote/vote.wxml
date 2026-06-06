@@ -1,0 +1,202 @@
+<view class="page-container">
+  <view class="session-info" wx:if="{{session}}">
+    <view class="session-meta">
+      <text class="meta-item">📍 {{session.region}}</text>
+      <text class="meta-item">🕐 {{session.time}}</text>
+      <text class="meta-item">👥 {{voteCount}}/{{maxPeople}}</text>
+    </view>
+  </view>
+
+  <!-- 已提交状态 -->
+  <view class="submitted-area" wx:if="{{voteSubmitted}}">
+    <view class="voted-success">
+      <text class="voted-emoji">🎉</text>
+      <text class="voted-title">表态已提交！</text>
+      <text class="voted-desc">等局长开始端水，AI大师在线判决</text>
+    </view>
+
+    <view class="my-votes">
+      <view class="vote-section" wx:if="{{myLikes.length > 0 || customLikes.length > 0}}">
+        <text class="vote-section-title">😍 我想要的</text>
+        <view class="vote-tags">
+          <view class="tag tag-like" wx:for="{{myLikes}}" wx:key="id">{{item.emoji}} {{item.text}}</view>
+          <view class="tag tag-like" wx:for="{{customLikes}}" wx:key="id">{{item.emoji}} {{item.text}}</view>
+        </view>
+      </view>
+      <view class="vote-section" wx:if="{{myDislikes.length > 0 || customDislikes.length > 0}}">
+        <text class="vote-section-title">🙅 我避雷的</text>
+        <view class="vote-tags">
+          <view class="tag tag-dislike" wx:for="{{myDislikes}}" wx:key="id">{{item.emoji}} {{item.text}}</view>
+          <view class="tag tag-dislike" wx:for="{{customDislikes}}" wx:key="id">{{item.emoji}} {{item.text}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="creator-panel" wx:if="{{isCreator}}">
+      <view class="creator-title">👑 局长操作台</view>
+
+      <!-- 人齐了：自动端水提示 -->
+      <view class="all-voted-hint" wx:if="{{allVoted}}">
+        <text class="all-voted-emoji">🎉</text>
+        <text class="all-voted-text">所有人已表态完毕！</text>
+        <button class="btn-primary judge-btn" bindtap="onStartJudge">⚖️ 立即端水</button>
+      </view>
+
+      <!-- 人没齐：手动端水 + 催进度 -->
+      <view class="not-all-voted" wx:if="{{!allVoted}}">
+        <view class="vote-progress-ring">
+          <text class="ring-count">{{voteCount}}</text>
+          <text class="ring-total">/{{maxPeople}}</text>
+        </view>
+        <text class="not-all-text">已表态，还差 {{maxPeople - voteCount}} 人</text>
+        <view class="creator-actions">
+          <button class="btn-primary judge-btn" bindtap="onStartJudge">⚖️ 直接端水</button>
+          <button class="btn-secondary urge-btn" bindtap="onUrgeTap">📣 催进度</button>
+        </view>
+      </view>
+    </view>
+
+    <view class="wait-result" wx:if="{{!isCreator}}">
+      <view class="wait-card card">
+        <text class="wait-emoji">{{allVoted ? '🎉' : '⏳'}}</text>
+        <text class="wait-text">{{allVoted ? '所有人已表态！' : '等待局长开始端水中...'}}</text>
+        <text class="wait-sub">{{allVoted ? '即将自动端水...' : '结果出来后会通知你'}}</text>
+      </view>
+    </view>
+
+    <view class="share-area" wx:if="{{voteSubmitted}}">
+      <button class="btn-secondary share-vote-btn" open-type="share">
+        📤 邀请群友来表态
+      </button>
+    </view>
+  </view>
+
+  <!-- 表态主区域（未提交） -->
+  <view class="vote-main" wx:if="{{!voteSubmitted}}">
+
+    <!-- 滑动卡片区域 -->
+    <view class="swipe-section" wx:if="{{currentTag}}">
+      <view class="swipe-header">
+        <text class="swipe-title">选选标签，快速表态</text>
+        <text class="swipe-skip" bindtap="onSkipAll">跳过全部 ›</text>
+      </view>
+
+      <view class="card-stack">
+        <view class="swipe-card card-bg-{{currentIndex % 4}} {{flyDirection}}"
+          bindtouchstart="onTouchStart"
+          bindtouchmove="onTouchMove"
+          bindtouchend="onTouchEnd"
+          style="transform: translateX({{moveX}}rpx) rotate({{rotate}}deg); transition: {{isAnimating ? 'all 0.4s ease-out' : 'none'}};">
+          <view class="card-inner">
+            <text class="card-emoji">{{currentTag.emoji}}</text>
+            <text class="card-text">{{currentTag.text}}</text>
+            <text class="card-type {{currentTag.type === 'like' ? 'type-like' : 'type-dislike'}}">
+              {{currentTag.type === 'like' ? '想要' : '避雷'}}
+            </text>
+          </view>
+          <view class="swipe-overlay swipe-left" wx:if="{{moveX < -60}}">
+            <text class="overlay-text">🙅 避雷</text>
+          </view>
+          <view class="swipe-overlay swipe-right" wx:if="{{moveX > 60}}">
+            <text class="overlay-text">😍 心动</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="action-buttons">
+        <view class="action-btn dislike-btn" bindtap="onDislikeTap">
+          <text class="action-emoji">🙅</text>
+          <text class="action-label">不行</text>
+        </view>
+        <view class="action-btn skip-btn" bindtap="onSkipTap">
+          <text class="action-emoji">🤷</text>
+          <text class="action-label">随意</text>
+        </view>
+        <view class="action-btn like-btn" bindtap="onLikeTap">
+          <text class="action-emoji">😍</text>
+          <text class="action-label">想要</text>
+        </view>
+      </view>
+
+      <view class="progress-bar">
+        <view class="progress-fill" style="width: {{progress}}%"></view>
+        <text class="progress-text">{{currentIndex}}/{{totalTags}}</text>
+      </view>
+    </view>
+
+    <!-- 已选标签汇总（实时显示） -->
+    <view class="my-votes-live" wx:if="{{myLikes.length > 0 || myDislikes.length > 0}}">
+      <view class="vote-section" wx:if="{{myLikes.length > 0}}">
+        <text class="vote-section-title">😍 想要</text>
+        <view class="vote-tags">
+          <view class="tag tag-like" wx:for="{{myLikes}}" wx:key="id">{{item.emoji}} {{item.text}}</view>
+        </view>
+      </view>
+      <view class="vote-section" wx:if="{{myDislikes.length > 0}}">
+        <text class="vote-section-title">🙅 避雷</text>
+        <view class="vote-tags">
+          <view class="tag tag-dislike" wx:for="{{myDislikes}}" wx:key="id">{{item.emoji}} {{item.text}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 自定义输入想吃啥 -->
+    <view class="custom-input-section card">
+      <text class="section-title">🍽️ 自己想吃啥？直接说！</text>
+      <view class="custom-input-row">
+        <input class="custom-input" placeholder="比如：烤肉！火锅！奶茶！" value="{{customWantText}}" bindinput="onCustomWantInput" bindconfirm="onAddCustomWant" />
+        <view class="custom-add-btn" bindtap="onAddCustomWant">
+          <text>➕</text>
+        </view>
+      </view>
+      <view class="custom-tags" wx:if="{{customLikes.length > 0}}">
+        <view class="tag tag-like custom-tag" wx:for="{{customLikes}}" wx:key="id">
+          {{item.emoji}} {{item.text}}
+          <text class="tag-remove" bindtap="onRemoveCustomLike" data-index="{{index}}">✕</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 贴照片 -->
+    <view class="photo-section card">
+      <text class="section-title">📸 贴张图表达态度</text>
+      <view class="photo-grid">
+        <view class="photo-item" wx:for="{{photos}}" wx:key="index">
+          <image class="photo-img" src="{{item}}" mode="aspectFill" />
+          <view class="photo-delete" bindtap="onDeletePhoto" data-index="{{index}}">✕</view>
+        </view>
+        <view class="photo-add" bindtap="onAddPhoto" wx:if="{{photos.length < 4}}">
+          <text class="photo-add-icon">+</text>
+          <text class="photo-add-text">添加照片</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 补充吐槽 -->
+    <view class="supplement card">
+      <text class="section-title">💬 补充吐槽</text>
+      <textarea class="supplement-input" placeholder="比如：我今天刚拔了智齿..." value="{{supplement}}" bindinput="onSupplementInput" maxlength="100" />
+    </view>
+
+    <!-- 提交表态按钮 -->
+    <view class="submit-area">
+      <button class="btn-primary submit-vote-btn" bindtap="onSubmitVote">
+        ✅ 提交我的表态
+      </button>
+      <text class="submit-hint">选多选少都行，随时可以提交</text>
+    </view>
+
+    <!-- 实时动态 -->
+    <view class="live-feed">
+      <view class="feed-title">📡 实时动态</view>
+      <view class="feed-list">
+        <view class="feed-item animate-fadeInUp" wx:for="{{feedItems}}" wx:key="index">
+          <text class="feed-text">{{item}}</text>
+        </view>
+        <view class="feed-empty" wx:if="{{feedItems.length === 0}}">
+          <text class="feed-empty-text">等待群友表态中...</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

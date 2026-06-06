@@ -1,0 +1,100 @@
+<view class="page-container">
+  <view class="page-header">
+    <text class="header-emoji">⚖️</text>
+    <text class="header-title">发起一局</text>
+    <text class="header-subtitle">填写基本信息，召唤群友来表态</text>
+  </view>
+
+  <view class="form-card">
+    <view class="form-item">
+      <view class="form-label">
+        <text class="label-icon">📍</text>
+        <text class="label-text">哪里吃</text>
+      </view>
+      <view class="location-row">
+        <view class="location-current" bindtap="onLocateTap">
+          <text class="location-status {{locationText ? 'located' : ''}}">{{locationText || '📍 点击定位'}}</text>
+          <text class="location-relocate" wx:if="{{locationText}}">重新定位</text>
+        </view>
+        <picker mode="region" bindchange="onRegionChange" value="{{region}}">
+          <view class="form-input picker-input region-picker">
+            <text class="{{region[1] ? '' : 'placeholder'}}">{{region[1] || '手动选择区域'}}</text>
+            <text class="picker-arrow">›</text>
+          </view>
+        </picker>
+      </view>
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">
+        <text class="label-icon">🕐</text>
+        <text class="label-text">几点吃</text>
+      </view>
+      <picker mode="time" value="{{time}}" start="06:00" end="23:30" bindchange="onTimeChange">
+        <view class="form-input picker-input">
+          <text class="{{time ? '' : 'placeholder'}}">{{time || '选择时间'}}</text>
+          <text class="picker-arrow">›</text>
+        </view>
+      </picker>
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">
+        <text class="label-icon">👥</text>
+        <text class="label-text">人数上限</text>
+      </view>
+      <view class="stepper">
+        <view class="stepper-btn" bindtap="onDecrease">−</view>
+        <text class="stepper-value">{{maxPeople}}</text>
+        <view class="stepper-btn" bindtap="onIncrease">+</view>
+      </view>
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">
+        <text class="label-icon">💰</text>
+        <text class="label-text">人均预算</text>
+      </view>
+      <view class="budget-tags">
+        <view class="budget-tag {{budgetLevel === 1 ? 'budget-active' : ''}}" bindtap="onBudgetTap" data-level="1">
+          <text>🪙 随便吃</text>
+          <text class="budget-range">50以下</text>
+        </view>
+        <view class="budget-tag {{budgetLevel === 2 ? 'budget-active' : ''}}" bindtap="onBudgetTap" data-level="2">
+          <text>💰 正常吃</text>
+          <text class="budget-range">50-150</text>
+        </view>
+        <view class="budget-tag {{budgetLevel === 3 ? 'budget-active' : ''}}" bindtap="onBudgetTap" data-level="3">
+          <text>💎 豪一把</text>
+          <text class="budget-range">150+</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">
+        <text class="label-icon">🚫</text>
+        <text class="label-text">局长底线</text>
+        <text class="label-hint">（可选）</text>
+      </view>
+      <input class="form-input" placeholder="比如：绝不吃香菜 / 不去太远" value="{{vetoText}}" bindinput="onVetoInput" />
+    </view>
+  </view>
+
+  <view class="action-area">
+    <button class="summon-btn" wx:if="{{!roomId}}" bindtap="onSummonTap">
+      <text class="summon-emoji">📢</text>
+      <text class="summon-text">召唤群友</text>
+    </button>
+    <button class="summon-btn" wx:if="{{roomId}}" open-type="share">
+      <text class="summon-emoji">📤</text>
+      <text class="summon-text">分享到群聊</text>
+    </button>
+    <button class="enter-vote-btn" wx:if="{{roomId}}" bindtap="onEnterVote">
+      <text class="summon-emoji">🗳️</text>
+      <text class="summon-text">进入表态墙</text>
+    </button>
+    <text class="action-tip" wx:if="{{!roomId}}">点击后创建房间，生成分享卡片</text>
+    <text class="action-tip" wx:if="{{roomId}}">分享到群聊召唤群友，或直接进入表态墙</text>
+  </view>
+</view>

@@ -1,0 +1,18 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/create/create",
+    "pages/vote/vote",
+    "pages/result/result"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#1A1D23",
+    "navigationBarTitleText": "端水大师",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#F8F9FA"
+  },
+  "sitemapLocation": "sitemap.json",
+  "cloud": true,
+  "style": "v2"
+}

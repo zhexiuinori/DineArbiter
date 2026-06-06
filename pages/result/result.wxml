@@ -1,0 +1,111 @@
+<view class="page-container">
+  <view class="thinking-section" wx:if="{{isThinking}}">
+    <view class="thinking-animation">
+      <view class="scale-wrap">
+        <text class="scale-emoji">⚖️</text>
+      </view>
+      <view class="thinking-dots">
+        <view class="dot dot-1"></view>
+        <view class="dot dot-2"></view>
+        <view class="dot dot-3"></view>
+      </view>
+    </view>
+    <text class="thinking-text">{{thinkingText}}</text>
+    <view class="thinking-progress">
+      <view class="thinking-bar" style="width: {{thinkingProgress}}%"></view>
+    </view>
+  </view>
+
+  <view class="result-section" wx:if="{{!isThinking && result}}">
+    <view class="verdict-header">
+      <text class="verdict-stamp">📜 端水判决书 📜</text>
+      <text class="verdict-id">案号：DS-{{result.caseId}}</text>
+    </view>
+
+    <view class="source-badge {{result.source === 'ai' ? 'source-ai' : 'source-local'}}">
+      <text>{{result.source === 'ai' ? '🤖 AI智能判决' : '📊 智能匹配'}}</text>
+    </view>
+
+    <view class="verdict-card">
+      <view class="winner-section">
+        <text class="winner-emoji">{{result.restaurant.emoji}}</text>
+        <text class="winner-name">{{result.restaurant.name}}</text>
+        <view class="winner-tags">
+          <text class="winner-tag" wx:for="{{result.restaurant.tags}}" wx:key="*this">{{item}}</text>
+        </view>
+        <view class="winner-info">
+          <text class="info-item">💰 人均 ¥{{result.restaurant.avgPrice}}</text>
+          <text class="info-item">📍 {{result.restaurant.location}}</text>
+          <text class="info-item">⭐ {{result.restaurant.rating}}</text>
+        </view>
+        <text class="winner-desc">{{result.restaurant.desc}}</text>
+      </view>
+    </view>
+
+    <view class="ai-comment card">
+      <view class="comment-header">
+        <text class="comment-avatar">🧙</text>
+        <text class="comment-name">端水大师·AI锐评</text>
+      </view>
+      <text class="comment-text">{{result.aiComment}}</text>
+    </view>
+
+    <view class="reasons-section card">
+      <text class="section-title">🎯 每个人都无法拒绝的理由</text>
+      <view class="reason-item" wx:for="{{result.reasons}}" wx:key="index">
+        <text class="reason-name">{{item.name}}</text>
+        <text class="reason-text">{{item.reason}}</text>
+      </view>
+    </view>
+
+    <view class="runner-up card" wx:if="{{result.runnersUp && result.runnersUp.length > 0}}">
+      <text class="section-title">🥈 备选方案</text>
+      <view class="runner-item" wx:for="{{result.runnersUp}}" wx:key="id">
+        <text class="runner-emoji">{{item.emoji}}</text>
+        <view class="runner-info">
+          <text class="runner-name">{{item.name}}</text>
+          <text class="runner-desc">人均¥{{item.avgPrice}} · {{item.tags.join(' · ')}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="chat-section card">
+      <text class="section-title">🧙 问大师</text>
+      <text class="chat-hint">对判决有疑问？追问大师获取更多建议</text>
+      <view class="chat-messages" wx:if="{{chatMessages.length > 0}}">
+        <view class="chat-msg {{item.role === 'user' ? 'msg-user' : 'msg-ai'}} {{item.isLoading ? 'msg-loading' : ''}}" wx:for="{{chatMessages}}" wx:key="index">
+          <text class="msg-text">{{item.content}}</text>
+        </view>
+      </view>
+      <view class="chat-input-row">
+        <input class="chat-input" placeholder="比如：为什么选这家不选那家？" value="{{chatInput}}" bindinput="onChatInput" bindconfirm="onChatSend" />
+        <view class="chat-send-btn" bindtap="onChatSend">
+          <text>发送</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="action-area">
+      <button class="btn-primary share-btn" open-type="share">
+        📤 分享判决书到群聊
+      </button>
+      <button class="btn-primary save-btn" bindtap="onSavePoster">
+        🖼️ 保存判决海报
+      </button>
+      <view class="secondary-actions">
+        <button class="btn-secondary veto-btn" bindtap="onVetoTap">
+          👋 给大师一巴掌
+        </button>
+        <button class="btn-secondary rejudge-btn" bindtap="onRejudgeTap">
+          🔄 重新端水
+        </button>
+      </view>
+    </view>
+
+    <view class="restaurant-link" bindtap="onRestaurantTap">
+      <text class="link-text">🛒 去{{result.restaurant.name}}看看 →</text>
+    </view>
+
+    <canvas type="2d" id="posterCanvas" class="poster-canvas"></canvas>
+  </view>
+</view>

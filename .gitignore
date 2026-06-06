@@ -1,0 +1,16 @@
+# 私有配置
+project.private.config.json
+
+# IDE 工作区
+.trae/
+
+# 云函数依赖（部署时自动安装）
+cloud/functions/*/node_modules/
+cloud/functions/*/package.json
+
+# 测试
+minitest/
+
+# 系统文件
+.DS_Store
+Thumbs.db

@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>端水大师 — 基于大语言模型的群体餐饮决策支持系统</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --brand: #2D5BFF;
+  --brand-muted: rgba(45,91,255,0.12);
+  --ink-2: #5A6478;
+  --ink-3: #8892A6;
+  --ink-4: #B8BFCC;
+  --dark: #0C0E14;
+  --dark-card: #181C28;
+  --border: rgba(255,255,255,0.07);
+  --border-hover: rgba(45,91,255,0.35);
+  --serif: 'Noto Serif SC', 'Georgia', serif;
+  --sans: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono: 'JetBrains Mono', 'Menlo', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--sans);
+  background: var(--dark);
+  color: rgba(255,255,255,0.88);
+  -webkit-font-smoothing: antialiased;
+}
+
+.page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+/* ===== Section ===== */
+.section {
+  padding: 80px 0;
+}
+
+.section + .section {
+  border-top: 1px solid var(--border);
+}
+
+.section-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--brand);
+  font-weight: 500;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.section-title {
+  font-family: var(--serif);
+  font-size: 36px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.3;
+  margin-bottom: 36px;
+}
+
+.section-title em {
+  font-style: normal;
+  color: var(--brand);
+}
+
+/* ===== Title Section ===== */
+.title-section {
+  text-align: center;
+  padding: 120px 0 80px;
+}
+
+.title-track {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-3);
+  letter-spacing: 3px;
+  margin-bottom: 48px;
+}
+
+.title-zh {
+  font-family: var(--serif);
+  font-size: 64px;
+  font-weight: 900;
+  letter-spacing: 8px;
+  color: #fff;
+  margin-bottom: 16px;
+}
+
+.title-en {
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--ink-3);
+  line-height: 1.6;
+  max-width: 640px;
+  margin: 0 auto 32px;
+}
+
+.title-line {
+  width: 60px;
+  height: 2px;
+  background: var(--brand);
+  margin: 0 auto 32px;
+}
+
+.title-sub {
+  font-family: var(--serif);
+  font-size: 20px;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.8;
+  margin-bottom: 48px;
+}
+
+.title-tags {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.title-tag {
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 6px 16px;
+  border-radius: 4px;
+  letter-spacing: 1px;
+}
+
+.title-tag.primary {
+  background: var(--brand);
+  color: #fff;
+}
+
+.title-tag.secondary {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.6);
+}
+
+/* ===== Content Blocks ===== */
+.block {
+  background: var(--dark-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px 28px;
+}
+
+.block-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.block-title .num {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--brand);
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
+.block p {
+  font-size: 14px;
+  color: var(--ink-3);
+  line-height: 1.8;
+}
+
+.block p + p { margin-top: 8px; }
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.three-col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.four-col {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.step-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.step-block { flex: 1; }
+
+.step-block .block-title {
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 10px;
+}
+
+.step-block .metric {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--brand);
+}
+
+.feature-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.feature-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--brand);
+  flex-shrink: 0;
+  margin-top: 8px;
+}
+
+.feature-text {
+  font-size: 13px;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.7;
+}
+
+.feature-text strong {
+  color: #fff;
+  font-weight: 600;
+}
+
+.arch-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.75);
+  padding: 7px 0;
+}
+
+.arch-item + .arch-item {
+  border-top: 1px solid rgba(255,255,255,0.04);
+}
+
+.arch-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--brand);
+  flex-shrink: 0;
+}
+
+.arch-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-4);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.fallback-row {
+  display: flex;
+  border-top: 1px solid var(--border);
+  margin-top: 16px;
+}
+
+.fallback-col {
+  flex: 1;
+  padding: 16px 20px;
+  border-right: 1px solid var(--border);
+}
+
+.fallback-col:last-child { border-right: none; }
+
+.fallback-priority {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-4);
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.fallback-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.fallback-name.primary { color: var(--brand); }
+
+.fallback-desc {
+  font-size: 12px;
+  color: var(--ink-3);
+  line-height: 1.5;
+}
+
+.stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 16px 0;
+}
+
+.stat-block { text-align: center; }
+
+.stat-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-4);
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.stat-value {
+  font-family: var(--mono);
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--brand);
+}
+
+.stat-value.good { color: #22C55E; }
+
+.stat-unit {
+  font-size: 14px;
+  color: var(--ink-3);
+}
+
+.stat-arrow {
+  font-size: 20px;
+  color: var(--ink-4);
+}
+
+.stat-note {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-3);
+  line-height: 1.8;
+  margin-left: 12px;
+  padding-left: 12px;
+  border-left: 1px solid var(--border);
+}
+
+.stat-note em {
+  font-style: normal;
+  color: var(--brand);
+}
+
+.contrib-card {
+  background: var(--dark-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px 16px;
+  text-align: center;
+}
+
+.contrib-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--brand);
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.contrib-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.contrib-desc {
+  font-size: 12px;
+  color: var(--ink-3);
+  line-height: 1.6;
+}
+
+.conclusion-center {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.conclusion-quote {
+  font-family: var(--serif);
+  font-size: 32px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.conclusion-quote em {
+  font-style: normal;
+  color: var(--brand);
+}
+
+.conclusion-sub {
+  font-size: 15px;
+  color: var(--ink-3);
+  font-weight: 300;
+}
+
+.footer-line {
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-4);
+  margin-top: 8px;
+}
+
+.footer-line strong {
+  color: var(--brand);
+  font-weight: 600;
+}
+
+.footer-line .sep {
+  display: inline-block;
+  width: 1px;
+  height: 10px;
+  background: var(--border);
+  vertical-align: middle;
+  margin: 0 16px;
+}
+
+.section-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- 1. Title -->
+  <div class="title-section">
+    <div class="title-track">LOCAL LIFE CREATIVE TRACK</div>
+    <div class="title-zh">端水大师</div>
+    <div class="title-en">Water-Balancing Master: A Group Dining Decision Support System Powered by LLM</div>
+    <div class="title-line"></div>
+    <div class="title-sub">基于大语言模型的群体餐饮决策支持系统<br>——从偏好采集到智能裁决的端到端方案</div>
+    <div class="title-tags">
+      <span class="title-tag primary">DeepSeek V4 Pro</span>
+      <span class="title-tag secondary">WeChat Mini Program</span>
+      <span class="title-tag secondary">WeChat Cloud</span>
+    </div>
+  </div>
+
+  <!-- 2. Problem -->
+  <div class="section">
+    <div class="section-label">01 — PROBLEM DEFINITION</div>
+    <div class="section-title">群体餐饮决策的<em>三重困境</em></div>
+    <div class="section-body">
+      <div class="three-col">
+        <div class="block">
+          <div class="block-title"><span class="num">P1</span> 偏好异构性</div>
+          <p>群体成员口味偏好存在结构性冲突——辣度耐受度、价格敏感度、饮食禁忌等维度难以通过简单投票聚合，传统多数决无法处理"想吃辣但不吃海鲜"等复合约束。</p>
+        </div>
+        <div class="block">
+          <div class="block-title"><span class="num">P2</span> 决策效率瓶颈</div>
+          <p>从发起讨论到最终确定餐厅，平均耗时超过30分钟。信息在群聊中碎片化传播，缺乏结构化采集机制，导致反复拉锯与决策疲劳。</p>
+        </div>
+        <div class="block">
+          <div class="block-title"><span class="num">P3</span> 隐性偏好遗漏</div>
+          <p>"随便""都行"等模糊表态掩盖了真实偏好。无人愿意率先表态的社会压力，使群体决策退化为少数人的独裁。</p>
+        </div>
+      </div>
+      <div class="block">
+        <div class="stat-row">
+          <div class="stat-block">
+            <div class="stat-label">TRADITIONAL</div>
+            <div class="stat-value">30<span class="stat-unit"> min</span></div>
+          </div>
+          <div class="stat-arrow">→</div>
+          <div class="stat-block">
+            <div class="stat-label">PROPOSED</div>
+            <div class="stat-value good">3<span class="stat-unit"> min</span></div>
+          </div>
+          <div class="stat-note">效率提升 <em>10×</em><br>决策耗时降低 <em>90%</em></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Methodology -->
+  <div class="section">
+    <div class="section-label">02 — METHODOLOGY</div>
+    <div class="section-title">三阶段决策流程：<em>采集 → 聚合 → 裁决</em></div>
+    <div class="section-body">
+      <div class="step-row">
+        <div class="block step-block">
+          <div class="block-title"><span class="num">STAGE 01</span> 会话初始化</div>
+          <p>创建决策会话，设定空间约束（区域）、时间约束（用餐时间）、规模约束（人数上限）、预算约束（人均区间）与硬性排除条件。</p>
+          <div class="metric">Avg. 60s / session</div>
+        </div>
+        <div class="block step-block">
+          <div class="block-title"><span class="num">STAGE 02</span> 偏好采集</div>
+          <p>基于卡片滑动交互的结构化偏好采集。每位成员对预定义标签执行三分类判断（心动/避雷/随意），并支持自由文本输入与图片辅助表达。</p>
+          <div class="metric">Avg. 30s / person</div>
+        </div>
+        <div class="block step-block">
+          <div class="block-title"><span class="num">STAGE 03</span> 智能裁决</div>
+          <p>LLM 接收全量偏好数据，执行多维度冲突消解与帕累托寻优，输出最优餐厅推荐、个性化理由生成与备选方案排序。</p>
+          <div class="metric">Automated</div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="block">
+          <div class="feature-item">
+            <div class="feature-dot"></div>
+            <div class="feature-text"><strong>LLM 驱动的冲突消解</strong> — DeepSeek V4 Pro 理解复合偏好约束，生成兼顾各方诉求的个性化推荐理由</div>
+          </div>
+        </div>
+        <div class="block">
+          <div class="feature-item">
+            <div class="feature-dot"></div>
+            <div class="feature-text"><strong>卡片式偏好采集范式</strong> — 借鉴 Tinder 交互模式，降低表态心理门槛，提升偏好采集完整度与参与率</div>
+          </div>
+        </div>
+        <div class="block">
+          <div class="feature-item">
+            <div class="feature-dot"></div>
+            <div class="feature-text"><strong>个性化理由生成</strong> — 为每位参与者生成"无法拒绝的理由"，将群体最优解转化为个体认同</div>
+          </div>
+        </div>
+        <div class="block">
+          <div class="feature-item">
+            <div class="feature-dot"></div>
+            <div class="feature-text"><strong>三层容错降级机制</strong> — LLM API → 云函数本地算法 → 前端本地算法，保障任意网络环境下的可用性</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Architecture -->
+  <div class="section">
+    <div class="section-label">03 — SYSTEM ARCHITECTURE</div>
+    <div class="section-title">技术架构与<em>容错设计</em></div>
+    <div class="section-body">
+      <div class="two-col">
+        <div class="block">
+          <div class="block-title">FRONTEND · 微信小程序客户端</div>
+          <div class="arch-item"><span class="arch-dot"></span>4 页面视图层 (WXML + WXSS + JS)<span class="arch-label">MVC</span></div>
+          <div class="arch-item"><span class="arch-dot"></span>Canvas 2D 海报渲染引擎<span class="arch-label">Share</span></div>
+          <div class="arch-item"><span class="arch-dot"></span>CSS Design Token 系统 (50+ 变量)<span class="arch-label">Design</span></div>
+          <div class="arch-item"><span class="arch-dot"></span>LocalStorage 持久化层<span class="arch-label">Cache</span></div>
+          <div class="arch-item"><span class="arch-dot"></span>Cloud Function RPC 调用<span class="arch-label">API</span></div>
+        </div>
+        <div class="block">
+          <div class="block-title">BACKEND · 微信云开发服务端</div>
+          <div class="arch-item"><span class="arch-dot"></span>aiJudge 云函数 (AI裁决 + 追问)<span class="arch-label">Core</span></div>
+          <div class="arch-item"><span class="arch-dot"></span>DeepSeek V4 Pro API 集成<span class="arch-label">LLM</span></div>
+          <div class="arch-item"><span class="arch-dot"></span>sessionManager 云函数<span class="arch-label">Session</span></div>
+          <div class="arch-item"><span class="arch-dot"></span>50 餐厅 + 24 标签知识库<span class="arch-label">Data</span></div>
+          <div class="arch-item"><span class="arch-dot"></span>标签匹配 + 冲突检测算法<span class="arch-label">Fallback</span></div>
+        </div>
+      </div>
+      <div class="block" style="padding-bottom:0;">
+        <div class="block-title">GRACEFUL DEGRADATION STRATEGY</div>
+        <div class="fallback-row">
+          <div class="fallback-col">
+            <div class="fallback-priority">Priority 1</div>
+            <div class="fallback-name primary">LLM API</div>
+            <div class="fallback-desc">DeepSeek V4 Pro 结构化 JSON 输出，语义理解 + 个性化理由生成</div>
+          </div>
+          <div class="fallback-col">
+            <div class="fallback-priority">Priority 2</div>
+            <div class="fallback-name">Cloud Local</div>
+            <div class="fallback-desc">云函数端标签匹配 + 评分排序，模板化锐评与理由生成</div>
+          </div>
+          <div class="fallback-col">
+            <div class="fallback-priority">Priority 3</div>
+            <div class="fallback-name">Client Local</div>
+            <div class="fallback-desc">前端本地算法降级，零网络环境可用</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Contributions -->
+  <div class="section">
+    <div class="section-label">04 — CONTRIBUTIONS</div>
+    <div class="section-title">研究贡献</div>
+    <div class="section-body">
+      <div class="conclusion-center">
+        <div class="conclusion-quote">让 AI <em>端水</em>，公平公正公开</div>
+        <div class="conclusion-sub">从"吵架半小时"到"3分钟搞定"——群体决策效率提升 10×</div>
+      </div>
+      <div class="four-col">
+        <div class="contrib-card">
+          <div class="contrib-num">C1</div>
+          <div class="contrib-title">交互范式创新</div>
+          <div class="contrib-desc">卡片滑动式偏好采集<br>降低表态心理门槛</div>
+        </div>
+        <div class="contrib-card">
+          <div class="contrib-num">C2</div>
+          <div class="contrib-title">LLM 裁决机制</div>
+          <div class="contrib-desc">个性化理由生成<br>群体最优→个体认同</div>
+        </div>
+        <div class="contrib-card">
+          <div class="contrib-num">C3</div>
+          <div class="contrib-title">多维评分算法</div>
+          <div class="contrib-desc">标签匹配 + 冲突检测<br>预算约束 + 偏好加权</div>
+        </div>
+        <div class="contrib-card">
+          <div class="contrib-num">C4</div>
+          <div class="contrib-title">容错架构设计</div>
+          <div class="contrib-desc">三层降级保障策略<br>任意环境持续可用</div>
+        </div>
+      </div>
+      <div class="block" style="text-align:center;">
+        <div class="footer-line">Powered by <strong>DeepSeek V4 Pro</strong> <span class="sep"></span> Built on <strong>WeChat Cloud Development</strong> <span class="sep"></span> Local Life Creative Track</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,184 @@
+page {
+  --color-brand: #2D5BFF;
+  --color-brand-dark: #1A4FE0;
+  --color-brand-light: #EBF0FF;
+  --color-brand-glow: rgba(45, 91, 255, 0.2);
+  --color-ink: #1A1D23;
+  --color-ink-secondary: #5A6478;
+  --color-ink-tertiary: #8892A6;
+  --color-ink-quaternary: #B8BFCC;
+  --color-surface: #FFFFFF;
+  --color-surface-alt: #F8F9FA;
+  --color-surface-dark: #0F1117;
+  --color-surface-dark-alt: #1A1D23;
+  --color-border: #E2E6ED;
+  --color-border-light: #F0F2F5;
+  --color-danger: #EF4444;
+  --color-warning: #D4940A;
+  --color-success: #22C55E;
+  --color-tag-like-bg: #EBF0FF;
+  --color-tag-like-text: #2D5BFF;
+  --color-tag-dislike-bg: #F3F4F7;
+  --color-tag-dislike-text: #5A6478;
+  --color-tag-neutral-bg: #FFF8E6;
+  --color-tag-neutral-text: #D4940A;
+  --space-1: 8rpx;
+  --space-2: 16rpx;
+  --space-3: 24rpx;
+  --space-4: 32rpx;
+  --space-5: 40rpx;
+  --space-6: 48rpx;
+  --space-7: 56rpx;
+  --space-8: 64rpx;
+  --text-2xs: 20rpx;
+  --text-xs: 22rpx;
+  --text-sm: 24rpx;
+  --text-sm-alt: 26rpx;
+  --text-base: 28rpx;
+  --text-base-alt: 30rpx;
+  --text-lg: 32rpx;
+  --text-xl: 36rpx;
+  --text-2xl: 40rpx;
+  --text-3xl-alt: 44rpx;
+  --text-3xl: 48rpx;
+  --radius-sm: 12rpx;
+  --radius-md: 16rpx;
+  --radius-lg: 20rpx;
+  --radius-xl: 24rpx;
+  --radius-full: 50rpx;
+  --shadow-sm: 0 2rpx 8rpx rgba(26, 29, 35, 0.06);
+  --shadow-md: 0 4rpx 16rpx rgba(26, 29, 35, 0.08);
+  --shadow-brand: 0 4rpx 16rpx rgba(45, 91, 255, 0.2);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+  background-color: var(--color-surface-alt);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  color: var(--color-ink);
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  padding: var(--space-5) var(--space-4);
+  min-height: 100vh;
+}
+
+.btn-primary {
+  background: var(--color-brand);
+  color: #fff;
+  border-radius: var(--radius-full);
+  font-size: var(--text-xl);
+  font-weight: bold;
+  padding: var(--space-3) var(--space-7);
+  border: none;
+  box-shadow: var(--shadow-brand);
+  transition: transform var(--duration-fast) var(--ease-out-quart), opacity var(--duration-fast) var(--ease-out-quart);
+}
+
+.btn-primary::after {
+  border: none;
+}
+
+.btn-primary:active {
+  transform: scale(0.96);
+  opacity: 0.9;
+}
+
+.btn-secondary {
+  background: var(--color-ink);
+  color: #fff;
+  border-radius: var(--radius-full);
+  font-size: var(--text-lg);
+  font-weight: bold;
+  padding: var(--space-3) var(--space-6);
+  border: none;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--duration-fast) var(--ease-out-quart), opacity var(--duration-fast) var(--ease-out-quart);
+}
+
+.btn-secondary::after {
+  border: none;
+}
+
+.btn-secondary:active {
+  transform: scale(0.96);
+  opacity: 0.9;
+}
+
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  border: 1rpx solid var(--color-border);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.section-title {
+  font-size: var(--text-lg);
+  font-weight: bold;
+  color: var(--color-ink);
+  margin-bottom: var(--space-3);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-sm);
+  margin: 6rpx;
+}
+
+.tag-like {
+  background: var(--color-tag-like-bg);
+  color: var(--color-tag-like-text);
+}
+
+.tag-dislike {
+  background: var(--color-tag-dislike-bg);
+  color: var(--color-tag-dislike-text);
+}
+
+.tag-neutral {
+  background: var(--color-tag-neutral-bg);
+  color: var(--color-tag-neutral-text);
+}
+
+@keyframes bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10rpx); }
+  75% { transform: translateX(10rpx); }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 2s var(--ease-out-quart) infinite;
+}
+
+.animate-shake {
+  animation: shake 0.5s var(--ease-out-quart);
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.5s var(--ease-out-quart);
+}
