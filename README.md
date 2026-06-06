@@ -4,6 +4,8 @@
 
 > 让 AI 端水，公平公正公开
 
+**演示视频**: [端水大师 — Bilibili](https://www.bilibili.com/video/BV1zfEJ6uEkb/)
+
 ## 项目简介
 
 DineArbiter（端水大师）是一个 AI 驱动的群体餐饮决策微信小程序。当"吃什么"变成群聊里最纠结的问题时，DineArbiter 通过结构化偏好采集 + LLM 智能裁决，3 分钟搞定原本 30 分钟的决策。
